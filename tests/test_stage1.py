@@ -7,7 +7,7 @@ from pytypes.contracts.stage1.NumberMagic import NumberMagic
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 # Print failing tx call trace
@@ -18,13 +18,16 @@ def revert_handler(e: TransactionRevertedError):
 
 class NumberMagicFuzzTest(FuzzTest):
 
+    nm: NumberMagic
+
     def pre_sequence(self) -> None:
         self.nm = NumberMagic.deploy()
         logger.debug(f"Starting sequence")
 
     def _rand(self) -> int256:
         # try `random_int(-(10**6), 10**6)` for faster fuzzing
-        return random_int(-int256.min, int256.max)
+        # return random_int(int256.min, int256.max)
+        return random_int(-(10**6), 10**6)
 
     @flow()
     def flow_multiply(self):
