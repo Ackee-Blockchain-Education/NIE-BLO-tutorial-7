@@ -30,7 +30,7 @@ class FaultyStakesFuzzTest(FuzzTest):
     def pre_sequence(self) -> None:
         self.owner = default_chain.accounts[0]
         self.stakers = default_chain.accounts[1:6]
-        self.fs = ...
+        self.fs = FaultyStakes.deploy(from_=self.owner)
 
         logger.debug(f"Starting sequence")
 
@@ -40,7 +40,10 @@ class FaultyStakesFuzzTest(FuzzTest):
 
     @flow()
     def flow_stake(self):
-        pass
+        staker = random.choice(self.stakers)
+        stake = random_int(0, self.STAKE_AMOUNT)
+        self.fs.stake(value=stake, from_=staker)
+        logger.debug(f"stake({stake}, from={staker})")
 
     @flow(weight=1000)
     def flow_play(self):
@@ -52,15 +55,33 @@ class FaultyStakesFuzzTest(FuzzTest):
         answer = correct_answer + int(not will_answer_correctly)
 
         with may_revert(FaultyStakes.NotEnoughStake):
-            pass
+            self.fs.play(answer, from_=player)
+            logger.debug(
+                f"play({answer}, from={player}) (correct={will_answer_correctly})"
+            )
 
     @flow()
     def flow_unstake(self):
-        pass
+        staker = random.choice(self.stakers)
+        unstake = random_int(0, self.UNSTAKE_AMOUNT)
+        with may_revert((FaultyStakes.InsufficientStake, FaultyStakes.TooManyUnstakes)):
+            self.fs.unstake(unstake, from_=staker)
+            logger.debug(f"unstake({unstake}, from={staker})")
 
     @flow()
     def flow_withdraw(self):
-        pass
+        staker = random.choice(self.stakers)
+        withdraw = random_int(0, self.WITHDRAW_AMOUNT)
+        day_passed = random_bool(true_prob=0.7)
+        if day_passed:
+            default_chain.mine(lambda t: t + 10000)
+        with may_revert(
+            (FaultyStakes.UnstakeNotAvailable, FaultyStakes.InsufficientValueLocked)
+        ):
+            self.fs.withdraw(withdraw, from_=staker)
+            logger.debug(
+                f"withdraw({withdraw}, from={staker}) (delay passed: {day_passed})"
+            )
 
 
 @default_chain.connect()

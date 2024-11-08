@@ -19,13 +19,34 @@ def revert_handler(e: TransactionRevertedError):
 class NumberMagicFuzzTest(FuzzTest):
 
     def pre_sequence(self) -> None:
-        pass
+        self.nm = NumberMagic.deploy()
+        logger.debug(f"Starting sequence")
 
-    # @flow()
-    # def ...
+    def _rand(self) -> int256:
+        # try `random_int(-(10**6), 10**6)` for faster fuzzing
+        return random_int(-int256.min, int256.max)
 
-    # @invariant()
-    # def ...
+    @flow()
+    def flow_multiply(self):
+        n = self._rand()
+        self.nm.multiply(n)
+        logger.debug(f"multiply({n})")
+
+    @flow()
+    def flow_divide(self):
+        n = self._rand()
+        self.nm.divide(n)
+        logger.debug(f"divide({n})")
+
+    @flow()
+    def flow_xor(self):
+        n = self._rand()
+        self.nm.xor(n)
+        logger.debug(f"xor({n})")
+
+    @invariant()
+    def invariant_isLocked(self):
+        assert self.nm.isLocked()
 
 
 @default_chain.connect()
