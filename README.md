@@ -11,5 +11,5 @@ This repository contains [Solady](https://github.com/Vectorized/solady/tree/2af0
 
 1. `wake up pytypes` to generate pytypes
 2. `wake test` to test the project once you create some tests
-3. `wake init detector foo` to initialize the empty detector called `foo`
-4. `wake init printer bar` to initialize the empty printer called `bar`
+3. `wake up detector foo` to initialize the empty detector called `foo`
+4. `wake up printer bar` to initialize the empty printer called `bar`

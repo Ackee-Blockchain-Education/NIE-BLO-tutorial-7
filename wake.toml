@@ -1,12 +1,7 @@
 [compiler.solc]
-remappings = [
-    "src/=solady/src/",
-]
-exclude_paths = [
-    "source/node_modules",
-    "source/lib",
-    "source/test",
-]
+include_paths = ["solady/ext/wake"]
+remappings = ["src/=solady/src/"]
+exclude_paths = ["solady/test"]
 
 [compiler.solc.optimizer]
 enabled = true
